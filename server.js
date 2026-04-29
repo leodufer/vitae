@@ -225,6 +225,58 @@ app.post('/api/cv/social', verifyToken, async (req, res) => {
     }
 });
 
+// Training
+app.get('/api/cv/training', verifyToken, async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM training WHERE user_id = ?', [req.user.id]);
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener capacitaciones.' });
+    }
+});
+
+app.post('/api/cv/training', verifyToken, async (req, res) => {
+    try {
+        const { training } = req.body; // Array of { course_name, institution, duration, description }
+        await pool.query('DELETE FROM training WHERE user_id = ?', [req.user.id]);
+        if (training && training.length > 0) {
+            const values = training.map(t => [req.user.id, t.course_name, t.institution, t.duration, t.description]);
+            await pool.query('INSERT INTO training (user_id, course_name, institution, duration, description) VALUES ?', [values]);
+        }
+        res.json({ message: 'Capacitaciones guardadas.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al guardar capacitaciones.' });
+    }
+});
+
+// Personal References
+app.get('/api/cv/references', verifyToken, async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM personal_references WHERE user_id = ?', [req.user.id]);
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener referencias personales.' });
+    }
+});
+
+app.post('/api/cv/references', verifyToken, async (req, res) => {
+    try {
+        const { references } = req.body; // Array of { ref_name, relationship, phone, email }
+        await pool.query('DELETE FROM personal_references WHERE user_id = ?', [req.user.id]);
+        if (references && references.length > 0) {
+            const values = references.map(r => [req.user.id, r.ref_name, r.relationship, r.phone, r.email]);
+            await pool.query('INSERT INTO personal_references (user_id, ref_name, relationship, phone, email) VALUES ?', [values]);
+        }
+        res.json({ message: 'Referencias personales guardadas.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al guardar referencias personales.' });
+    }
+});
+
 // Get Full CV Data
 app.get('/api/cv/full', verifyToken, async (req, res) => {
     try {
@@ -237,6 +289,8 @@ app.get('/api/cv/full', verifyToken, async (req, res) => {
         const [education] = await pool.query('SELECT * FROM education WHERE user_id = ?', [userId]);
         const [languages] = await pool.query('SELECT * FROM languages WHERE user_id = ?', [userId]);
         const [social] = await pool.query('SELECT * FROM social_networks WHERE user_id = ?', [userId]);
+        const [training] = await pool.query('SELECT * FROM training WHERE user_id = ?', [userId]);
+        const [references] = await pool.query('SELECT * FROM personal_references WHERE user_id = ?', [userId]);
 
         res.json({
             personal: personal[0] || {},
@@ -245,7 +299,9 @@ app.get('/api/cv/full', verifyToken, async (req, res) => {
             experience,
             education,
             languages,
-            social
+            social,
+            training,
+            references
         });
     } catch (error) {
         console.error(error);

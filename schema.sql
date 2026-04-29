@@ -66,3 +66,23 @@ CREATE TABLE IF NOT EXISTS soft_skills (
     skill_name VARCHAR(100),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS training (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    course_name VARCHAR(255),
+    institution VARCHAR(255),
+    duration VARCHAR(100),
+    description TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS personal_references (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    ref_name VARCHAR(255),
+    relationship VARCHAR(255),
+    phone VARCHAR(50),
+    email VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

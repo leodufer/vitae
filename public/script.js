@@ -219,6 +219,36 @@ document.addEventListener("DOMContentLoaded", () => {
         <p id="save-msg-social" class="sys-msg" style="margin-top: 1rem;"></p>
     `;
 
+    sections['capacitaciones'] = `
+        <div class="dashboard-header">
+            <h2>PANEL DE CONTROL // CAPACITACIONES</h2>
+            <div class="dashboard-actions">
+                <button class="btn-primary" id="save-training">GUARDAR CAPACITACIONES</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">▸ EDITOR_DE_CAPACITACIONES</div>
+            <textarea id="training-list" style="width: 100%; height: 200px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.5rem; font-family: var(--font-body); margin-top: 1rem;" placeholder="Curso | Institución | Duración | Descripción"></textarea>
+            <p style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.5rem;">Formato: Curso | Institución | Duración | Descripción (Una por línea).</p>
+        </div>
+        <p id="save-msg-training" class="sys-msg" style="margin-top: 1rem;"></p>
+    `;
+
+    sections['referencias'] = `
+        <div class="dashboard-header">
+            <h2>PANEL DE CONTROL // REFERENCIAS PERSONALES</h2>
+            <div class="dashboard-actions">
+                <button class="btn-primary" id="save-references">GUARDAR REFERENCIAS</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">▸ EDITOR_DE_REFERENCIAS</div>
+            <textarea id="references-list" style="width: 100%; height: 200px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.5rem; font-family: var(--font-body); margin-top: 1rem;" placeholder="Nombre | Relación | Teléfono | Email"></textarea>
+            <p style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.5rem;">Formato: Nombre | Relación | Teléfono | Email (Una por línea).</p>
+        </div>
+        <p id="save-msg-references" class="sys-msg" style="margin-top: 1rem;"></p>
+    `;
+
     sections['configuracion'] = `
         <div class="dashboard-header">
             <h2>PANEL DE CONTROL // CONFIGURACIÓN</h2>
@@ -325,6 +355,52 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await apiRequest('/api/cv/social', 'POST', { networks });
         if (res) {
             msg.textContent = '> REDES SOCIALES ACTUALIZADAS.';
+            msg.style.color = 'var(--accent)';
+        }
+    }
+
+    // Training Logic
+    async function loadTraining() {
+        const data = await apiRequest('/api/cv/training');
+        if (data && document.getElementById('training-list')) {
+            document.getElementById('training-list').value = data.map(t => `${t.course_name} | ${t.institution} | ${t.duration} | ${t.description}`).join('\n');
+        }
+    }
+
+    async function saveTraining() {
+        const list = document.getElementById('training-list').value;
+        const training = list.split('\n').filter(line => line.trim() !== '').map(line => {
+            const [course_name, institution, duration, description] = line.split('|').map(s => s.trim());
+            return { course_name, institution, duration, description };
+        });
+        const msg = document.getElementById('save-msg-training');
+        msg.textContent = '> GUARDANDO CAPACITACIONES...';
+        const res = await apiRequest('/api/cv/training', 'POST', { training });
+        if (res) {
+            msg.textContent = '> CAPACITACIONES ACTUALIZADAS.';
+            msg.style.color = 'var(--accent)';
+        }
+    }
+
+    // References Logic
+    async function loadReferences() {
+        const data = await apiRequest('/api/cv/references');
+        if (data && document.getElementById('references-list')) {
+            document.getElementById('references-list').value = data.map(r => `${r.ref_name} | ${r.relationship} | ${r.phone} | ${r.email}`).join('\n');
+        }
+    }
+
+    async function saveReferences() {
+        const list = document.getElementById('references-list').value;
+        const references = list.split('\n').filter(line => line.trim() !== '').map(line => {
+            const [ref_name, relationship, phone, email] = line.split('|').map(s => s.trim());
+            return { ref_name, relationship, phone, email };
+        });
+        const msg = document.getElementById('save-msg-references');
+        msg.textContent = '> GUARDANDO REFERENCIAS...';
+        const res = await apiRequest('/api/cv/references', 'POST', { references });
+        if (res) {
+            msg.textContent = '> REFERENCIAS ACTUALIZADAS.';
             msg.style.color = 'var(--accent)';
         }
     }
@@ -466,6 +542,12 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (sectionId === 'redes') {
                 await loadSocial();
                 document.getElementById('save-social').addEventListener('click', saveSocial);
+            } else if (sectionId === 'capacitaciones') {
+                await loadTraining();
+                document.getElementById('save-training').addEventListener('click', saveTraining);
+            } else if (sectionId === 'referencias') {
+                await loadReferences();
+                document.getElementById('save-references').addEventListener('click', saveReferences);
             }
         }, 600);
     }
@@ -545,7 +627,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await apiRequest('/api/cv/full');
         if (!data) return;
 
-        const { personal, skills, soft_skills, experience, education, languages, social } = data;
+        const { personal, skills, soft_skills, experience, education, languages, social, training, references } = data;
 
         const cvHtml = `
             <div id="cv-template" style="background: white; color: #333; padding: 40px; font-family: 'Arial', sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
@@ -587,6 +669,20 @@ document.addEventListener("DOMContentLoaded", () => {
                                 </div>
                             `).join('')}
                         </section>
+
+                        <section style="margin-bottom: 30px;">
+                            <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Capacitaciones y Cursos</h3>
+                            ${training && training.length > 0 ? training.map(t => `
+                                <div style="margin-bottom: 15px;">
+                                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                                        <span>${t.course_name}</span>
+                                        <span>${t.duration}</span>
+                                    </div>
+                                    <div style="font-style: italic; color: #555;">${t.institution}</div>
+                                    <p style="margin: 5px 0 0 0; font-size: 0.9rem;">${t.description || ''}</p>
+                                </div>
+                            `).join('') : '<p style="font-size: 0.9rem; color: #999;">No hay capacitaciones registradas.</p>'}
+                        </section>
                     </div>
 
                     <div class="side-col">
@@ -611,6 +707,18 @@ document.addEventListener("DOMContentLoaded", () => {
                                     <strong>${l.language_name}:</strong> ${l.level}
                                 </div>
                             `).join('')}
+                        </section>
+
+                        <section style="margin-bottom: 30px;">
+                            <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Referencias</h3>
+                            ${references && references.length > 0 ? references.map(r => `
+                                <div style="font-size: 0.85rem; margin-bottom: 10px; line-height: 1.2;">
+                                    <div style="font-weight: bold;">${r.ref_name}</div>
+                                    <div style="color: #666;">${r.relationship}</div>
+                                    <div>Tel: ${r.phone}</div>
+                                    <div>${r.email}</div>
+                                </div>
+                            `).join('') : '<p style="font-size: 0.85rem; color: #999;">Disponibles bajo solicitud.</p>'}
                         </section>
                     </div>
                 </div>
