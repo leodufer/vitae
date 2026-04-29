@@ -42,7 +42,7 @@ Aunque el archivo `docker-compose.yml` tiene valores por defecto, se recomienda 
 ### Paso C: Iniciar los Contenedores
 Ejecuta el siguiente comando en la raíz del proyecto:
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
 -   `-d`: Ejecuta en segundo plano (detached mode).
 -   `--build`: Fuerza la construcción de la imagen de la aplicación.
