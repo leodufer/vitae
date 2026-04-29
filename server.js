@@ -2,11 +2,19 @@ const express = require('express');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const { body, validationResult } = require('express-validator');
 require('dotenv').config();
 const pool = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Security: Use Helmet to set various HTTP headers
+app.use(helmet({
+    contentSecurityPolicy: false, // Disable CSP for now as it might block inline scripts/styles in this project's current state, but could be enabled later
+}));
 
 // Middleware para parsear JSON
 app.use(express.json());
@@ -14,12 +22,28 @@ app.use(express.json());
 // Configuración para servir archivos estáticos desde el directorio 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Rate Limiting: Prevent brute force attacks
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20, // limit each IP to 20 requests per windowMs
+    message: { error: 'Demasiados intentos. Por favor, intente de nuevo más tarde.' }
+});
+
+const apiLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000,
+    max: 100,
+    message: { error: 'Límite de peticiones excedido.' }
+});
+
+app.use('/api/', apiLimiter);
+app.use('/api/login', authLimiter);
+app.use('/api/register', authLimiter);
+
 // Ruta principal (por defecto cargará index.html de /public)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Puedes agregar más rutas de API aquí para el soporte de backend en el futuro
 // Middleware para verificar el token JWT
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -29,7 +53,12 @@ const verifyToken = (req, res, next) => {
         return res.status(403).json({ error: 'Token no proporcionado.' });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET || 'supersecretkey_change_me', (err, decoded) => {
+    const secret = process.env.JWT_SECRET;
+    if (!secret || secret === 'supersecretkey_change_me') {
+        console.warn('WARNING: JWT_SECRET is not set properly or using default value.');
+    }
+
+    jwt.verify(token, secret || 'supersecretkey_change_me', (err, decoded) => {
         if (err) {
             return res.status(401).json({ error: 'Token inválido o expirado.' });
         }
@@ -39,10 +68,11 @@ const verifyToken = (req, res, next) => {
 };
 
 app.get('/api/status', (req, res) => {
-    res.json({ status: 'online', version: '1.0.4', environment: 'production' });
+    res.json({ status: 'online' }); // Minimal info exposure
 });
 
 // --- API CV DATA ---
+// (Parameterized queries already used, which is good)
 
 // Personal Data
 app.get('/api/cv/personal', verifyToken, async (req, res) => {
@@ -55,7 +85,17 @@ app.get('/api/cv/personal', verifyToken, async (req, res) => {
     }
 });
 
-app.post('/api/cv/personal', verifyToken, async (req, res) => {
+app.post('/api/cv/personal', verifyToken, [
+    body('email').isEmail().normalizeEmail(),
+    body('full_name').trim().escape().isLength({ min: 2, max: 100 }),
+    body('phone').optional({ checkFalsy: true }).trim().escape(),
+    body('location').optional({ checkFalsy: true }).trim().escape()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const { full_name, email, phone, location } = req.body;
         await pool.query(
@@ -310,19 +350,25 @@ app.get('/api/cv/full', verifyToken, async (req, res) => {
 });
 
 // Rutas de Autenticación
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', [
+    body('name').trim().isLength({ min: 2, max: 100 }),
+    body('email').isEmail().normalizeEmail(),
+    body('password').isLength({ min: 6 })
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ error: 'Datos de entrada inválidos.' });
+    }
+
     try {
         const { name, email, password } = req.body;
-        if (!name || !email || !password) {
-            return res.status(400).json({ error: 'Faltan campos requeridos.' });
-        }
 
         const [existingUsers] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
         if (existingUsers.length > 0) {
             return res.status(409).json({ error: 'El email ya está registrado.' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 12);
         await pool.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hashedPassword]);
         
         res.status(201).json({ message: 'Usuario registrado exitosamente.' });
@@ -332,12 +378,17 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', [
+    body('email').isEmail().normalizeEmail(),
+    body('password').notEmpty()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ error: 'Email o contraseña inválidos.' });
+    }
+
     try {
         const { email, password } = req.body;
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Faltan campos requeridos.' });
-        }
 
         const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
         if (users.length === 0) {
@@ -350,9 +401,10 @@ app.post('/api/login', async (req, res) => {
             return res.status(401).json({ error: 'Credenciales inválidas.' });
         }
 
+        const secret = process.env.JWT_SECRET || 'supersecretkey_change_me';
         const token = jwt.sign(
             { id: user.id, email: user.email }, 
-            process.env.JWT_SECRET || 'supersecretkey_change_me', 
+            secret, 
             { expiresIn: '1h' }
         );
         
@@ -370,7 +422,6 @@ app.post('/api/login', async (req, res) => {
 // Iniciar el servidor
 app.listen(PORT, () => {
     console.log(`=========================================`);
-    console.log(`🚀 Servidor ejecutándose en:`);
-    console.log(`   http://localhost:${PORT}`);
+    console.log(`🚀 Servidor ejecutándose en: http://localhost:${PORT}`);
     console.log(`=========================================`);
 });

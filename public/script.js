@@ -622,6 +622,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Helper to prevent XSS
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str.toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     // --- CV GENERATION & PDF LOGIC ---
     async function generateCV() {
         const data = await apiRequest('/api/cv/full');
@@ -632,12 +643,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const cvHtml = `
             <div id="cv-template" style="background: white; color: #333; padding: 40px; font-family: 'Arial', sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
                 <header style="border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; text-align: center;">
-                    <h1 style="margin: 0; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;">${personal.full_name || 'TU NOMBRE'}</h1>
+                    <h1 style="margin: 0; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;">${escapeHTML(personal.full_name) || 'TU NOMBRE'}</h1>
                     <p style="margin: 5px 0; font-size: 1rem; color: #666;">
-                        ${personal.email || ''} | ${personal.phone || ''} | ${personal.location || ''}
+                        ${escapeHTML(personal.email) || ''} | ${escapeHTML(personal.phone) || ''} | ${escapeHTML(personal.location) || ''}
                     </p>
                     <div style="margin-top: 10px;">
-                        ${social.map(s => `<a href="${s.url}" style="color: #333; text-decoration: none; margin: 0 10px; font-size: 0.9rem;">${s.platform} ${s.url}</a>`).join(' | ')}
+                        ${social.map(s => `<a href="${escapeHTML(s.url)}" style="color: #333; text-decoration: none; margin: 0 10px; font-size: 0.9rem;">${escapeHTML(s.platform)} ${escapeHTML(s.url)}</a>`).join(' | ')}
                     </div>
                 </header>
 
@@ -648,11 +659,11 @@ document.addEventListener("DOMContentLoaded", () => {
                             ${experience.map(exp => `
                                 <div style="margin-bottom: 20px;">
                                     <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                                        <span>${exp.position}</span>
-                                        <span>${exp.duration}</span>
+                                        <span>${escapeHTML(exp.position)}</span>
+                                        <span>${escapeHTML(exp.duration)}</span>
                                     </div>
-                                    <div style="font-style: italic; color: #555; margin-bottom: 5px;">${exp.company}</div>
-                                    <p style="margin: 0; font-size: 0.95rem;">${exp.description}</p>
+                                    <div style="font-style: italic; color: #555; margin-bottom: 5px;">${escapeHTML(exp.company)}</div>
+                                    <p style="margin: 0; font-size: 0.95rem;">${escapeHTML(exp.description)}</p>
                                 </div>
                             `).join('')}
                         </section>
@@ -662,10 +673,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             ${education.map(edu => `
                                 <div style="margin-bottom: 15px;">
                                     <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                                        <span>${edu.degree}</span>
-                                        <span>${edu.duration}</span>
+                                        <span>${escapeHTML(edu.degree)}</span>
+                                        <span>${escapeHTML(edu.duration)}</span>
                                     </div>
-                                    <div style="color: #555;">${edu.institution}</div>
+                                    <div style="color: #555;">${escapeHTML(edu.institution)}</div>
                                 </div>
                             `).join('')}
                         </section>
@@ -675,11 +686,11 @@ document.addEventListener("DOMContentLoaded", () => {
                             ${training && training.length > 0 ? training.map(t => `
                                 <div style="margin-bottom: 15px;">
                                     <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                                        <span>${t.course_name}</span>
-                                        <span>${t.duration}</span>
+                                        <span>${escapeHTML(t.course_name)}</span>
+                                        <span>${escapeHTML(t.duration)}</span>
                                     </div>
-                                    <div style="font-style: italic; color: #555;">${t.institution}</div>
-                                    <p style="margin: 5px 0 0 0; font-size: 0.9rem;">${t.description || ''}</p>
+                                    <div style="font-style: italic; color: #555;">${escapeHTML(t.institution)}</div>
+                                    <p style="margin: 5px 0 0 0; font-size: 0.9rem;">${escapeHTML(t.description) || ''}</p>
                                 </div>
                             `).join('') : '<p style="font-size: 0.9rem; color: #999;">No hay capacitaciones registradas.</p>'}
                         </section>
@@ -689,14 +700,14 @@ document.addEventListener("DOMContentLoaded", () => {
                         <section style="margin-bottom: 30px;">
                             <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Habilidades Técnicas</h3>
                             <div style="display: flex; flex-wrap: wrap; gap: 5px;">
-                                ${skills.map(s => `<span style="background: #f0f0f0; padding: 3px 8px; border-radius: 3px; font-size: 0.85rem;">${s.skill_name}</span>`).join('')}
+                                ${skills.map(s => `<span style="background: #f0f0f0; padding: 3px 8px; border-radius: 3px; font-size: 0.85rem;">${escapeHTML(s.skill_name)}</span>`).join('')}
                             </div>
                         </section>
 
                         <section style="margin-bottom: 30px;">
                             <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Habilidades Blandas</h3>
                             <ul style="padding-left: 20px; margin: 0; font-size: 0.9rem;">
-                                ${soft_skills.map(s => `<li>${s.skill_name}</li>`).join('')}
+                                ${soft_skills.map(s => `<li>${escapeHTML(s.skill_name)}</li>`).join('')}
                             </ul>
                         </section>
 
@@ -704,7 +715,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Idiomas</h3>
                             ${languages.map(l => `
                                 <div style="font-size: 0.9rem; margin-bottom: 5px;">
-                                    <strong>${l.language_name}:</strong> ${l.level}
+                                    <strong>${escapeHTML(l.language_name)}:</strong> ${escapeHTML(l.level)}
                                 </div>
                             `).join('')}
                         </section>
@@ -713,10 +724,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Referencias</h3>
                             ${references && references.length > 0 ? references.map(r => `
                                 <div style="font-size: 0.85rem; margin-bottom: 10px; line-height: 1.2;">
-                                    <div style="font-weight: bold;">${r.ref_name}</div>
-                                    <div style="color: #666;">${r.relationship}</div>
-                                    <div>Tel: ${r.phone}</div>
-                                    <div>${r.email}</div>
+                                    <div style="font-weight: bold;">${escapeHTML(r.ref_name)}</div>
+                                    <div style="color: #666;">${escapeHTML(r.relationship)}</div>
+                                    <div>Tel: ${escapeHTML(r.phone)}</div>
+                                    <div>${escapeHTML(r.email)}</div>
                                 </div>
                             `).join('') : '<p style="font-size: 0.85rem; color: #999;">Disponibles bajo solicitud.</p>'}
                         </section>
