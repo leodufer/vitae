@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurricuGen | Generador de CV con IA</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=VT323&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <div class="ticker__item">ESTADO DEL SISTEMA: OPERATIVO // ÚLTIMO CV GENERADO: HACE 2 MINUTOS // IA
+                PROCESANDO DATOS... // ESTRUCTURA DEL CURRÍCULUM OPTIMIZADA.</div>
+            <div class="ticker__item">ESTADO DEL SISTEMA: OPERATIVO // ÚLTIMO CV GENERADO: HACE 2 MINUTOS // IA
+                PROCESANDO DATOS... // ESTRUCTURA DEL CURRÍCULUM OPTIMIZADA.</div>
+        </div>
+    </div>
+    <nav class="navbar">
+        <div class="logo">CV_GEN [BETA]</div>
+        <div class="nav-links">
+            <button id="theme-toggle" class="theme-switch" aria-label="Alternar tema">☀</button>
+            <a href="#como-funciona">CÓMO FUNCIONA</a>
+            <a href="auth.html" class="btn-secondary">INICIAR SESIÓN</a>
+        </div>
+    </nav>
+
+    <main class="hero">
+        <div class="hero-content">
+            <h1>CREA TU<br><span class="highlight">CURRÍCULUM</span><br>CON IA.</h1>
+            <p>Optimización de currículums impulsada por agentes de inteligencia artificial. Aumenta tus posibilidades
+                de pasar los filtros ATS en segundos.</p>
+            <a href="dashboard.html" class="btn-primary">INICIAR SIMULACIÓN ▸</a>
+        </div>
+        <div class="hero-terminal">
+            <div class="terminal-header">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="terminal-title">cv_optimizer.exe</span>
+            </div>
+            <div class="terminal-body" id="terminal-body">
+                <p class="sys-msg">&gt; INICIALIZANDO MÓDULO DE OPTIMIZACIÓN...</p>
+                <p class="sys-msg">&gt; ANALIZANDO DATOS DEL USUARIO...</p>
+                <div class="progress-bar">
+                    <span>ESTRUCTURA</span> <span class="bar" id="progress-1">[░░░░░░░░░░░░░░] 0%</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section id="como-funciona" class="features">
+        <h2 class="section-title">▸ CÓMO FUNCIONA EL PROCESO</h2>
+        <div class="grid" style="margin-bottom: 5rem;">
+            <div class="card">
+                <div class="card-header">PASO_01 // ENTRADA</div>
+                <h3>RECEPCIÓN DE DATOS</h3>
+                <p>Proporcionas tu currículum actual y la descripción del puesto objetivo. El sistema analiza la
+                    información e inicializa el entorno de trabajo.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">PASO_02 // PROCESAMIENTO</div>
+                <h3>ANÁLISIS MULTI-AGENTE</h3>
+                <p>Nuestros agentes especializados colaboran en secuencia para reestructurar, optimizar palabras clave y
+                    reescribir tus experiencias con enfoque en resultados.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">PASO_03 // SALIDA</div>
+                <h3>GENERACIÓN DE CV</h3>
+                <p>El sistema compila las optimizaciones y produce un currículum altamente compatible con sistemas ATS,
+                    listo para destacar ante reclutadores.</p>
+            </div>
+        </div>
+
+        <h2 class="section-title">▸ AGENTES ACTIVOS</h2>
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">▸ AGENTE_01</div>
+                <h3>EL ESCRITOR</h3>
+                <p>Reescribe tus experiencias laborales en un formato de alto impacto, enfocado en resultados tangibles
+                    y medibles.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">▸ AGENTE_02</div>
+                <h3>EL OPTIMIZADOR</h3>
+                <p>Analiza las palabras clave de la oferta de trabajo y ajusta tu currículum para superar los sistemas
+                    de seguimiento de candidatos (ATS).</p>>
+            </div>
+            <div class="card">
+                <div class="card-header">▸ AGENTE_03</div>
+                <h3>EL REVISOR</h3>
+                <p>Realiza una verificación exhaustiva de la gramática, consistencia y formato para garantizar un
+                    resultado impecable.</p>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

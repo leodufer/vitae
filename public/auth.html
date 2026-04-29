@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurricuGen | Acceso</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="guard.js"></script>
+</head>
+<body>
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <div class="ticker__item">ESTADO DEL SISTEMA: OPERATIVO // CONEXIÓN SEGURA ESTABLECIDA // PROTOCOLOS DE ENCRIPTACIÓN ACTIVOS.</div>
+            <div class="ticker__item">ESTADO DEL SISTEMA: OPERATIVO // CONEXIÓN SEGURA ESTABLECIDA // PROTOCOLOS DE ENCRIPTACIÓN ACTIVOS.</div>
+        </div>
+    </div>
+    <nav class="navbar">
+        <a href="index.html" style="text-decoration: none; color: inherit;"><div class="logo">CV_GEN [BETA]</div></a>
+        <div class="nav-links">
+            <button id="theme-toggle" class="theme-switch" aria-label="Alternar tema">☀</button>
+            <a href="index.html">VOLVER AL INICIO</a>
+        </div>
+    </nav>
+
+    <main class="auth-container">
+        <!-- Login Form -->
+        <div class="auth-box" id="login-box">
+            <div class="terminal-header" style="position: absolute; top: 0; left: 0; width: 100%;">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="terminal-title">auth_module.exe</span>
+            </div>
+            
+            <div class="auth-header" style="margin-top: 2rem;">
+                <h2>&gt; INICIAR SESIÓN</h2>
+                <p>Ingresa tus credenciales para acceder al sistema.</p>
+            </div>
+            
+            <form id="login-form" action="#" method="POST" onsubmit="event.preventDefault();">
+                <div id="login-message" style="margin-bottom: 15px; color: var(--accent); font-family: 'VT323', monospace; font-size: 1.2rem;"></div>
+                <div class="form-group">
+                    <label for="login-email">&gt; EMAIL_</label>
+                    <input type="email" id="login-email" placeholder="usuario@dominio.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">&gt; PASSWORD_</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary auth-btn">AUTENTICAR ▸</button>
+            </form>
+            
+            <div class="auth-switch">
+                ¿No tienes acceso? <a href="#" onclick="toggleAuth(event, 'register')">SOLICITAR CREDENCIALES</a>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div class="auth-box hidden" id="register-box">
+            <div class="terminal-header" style="position: absolute; top: 0; left: 0; width: 100%;">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="terminal-title">user_creation.exe</span>
+            </div>
+            
+            <div class="auth-header" style="margin-top: 2rem;">
+                <h2>&gt; NUEVO USUARIO</h2>
+                <p>Genera nuevas credenciales de acceso.</p>
+            </div>
+            
+            <form id="register-form" action="#" method="POST" onsubmit="event.preventDefault();">
+                <div id="register-message" style="margin-bottom: 15px; color: var(--accent); font-family: 'VT323', monospace; font-size: 1.2rem;"></div>
+                <div class="form-group">
+                    <label for="reg-name">&gt; NOMBRE_ID_</label>
+                    <input type="text" id="reg-name" placeholder="Tu Nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">&gt; EMAIL_</label>
+                    <input type="email" id="reg-email" placeholder="usuario@dominio.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">&gt; PASSWORD_</label>
+                    <input type="password" id="reg-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary auth-btn">GENERAR ACCESO ▸</button>
+            </form>
+            
+            <div class="auth-switch">
+                ¿Ya tienes credenciales? <a href="#" onclick="toggleAuth(event, 'login')">INICIAR SESIÓN</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleAuth(event, target) {
+            event.preventDefault();
+            const loginBox = document.getElementById('login-box');
+            const registerBox = document.getElementById('register-box');
+            
+            if (target === 'register') {
+                loginBox.classList.add('hidden');
+                registerBox.classList.remove('hidden');
+            } else {
+                registerBox.classList.add('hidden');
+                loginBox.classList.remove('hidden');
+            }
+        }
+    </script>
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

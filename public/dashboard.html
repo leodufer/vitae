@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurricuGen | Dashboard de Usuario</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=VT323&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="guard.js"></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">CV_GEN [DASHBOARD]</div>
+        <div class="nav-links">
+            <button id="theme-toggle" class="theme-switch" aria-label="Alternar tema">☀</button>
+            <span style="color: var(--text-secondary); font-family: var(--font-body); font-size: 0.9rem;">USUARIO: <span
+                    class="highlight" id="user-display">GURU</span></span>
+            <button id="logout-btn" class="btn-secondary"
+                style="padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer;">CERRAR SESIÓN</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="active" data-section="mi-curriculum"><a href="#">▸ MI CURRÍCULUM</a></li>
+                <li data-section="datos-personales"><a href="#">▸ Datos Personales</a></li>
+                <li data-section="habilidades"><a href="#">▸ Habilidades Técnicas</a></li>
+                <li data-section="soft-skills"><a href="#">▸ Habilidades Blandas</a></li>
+                <li data-section="experiencia"><a href="#">▸ Experiencia</a></li>
+                <li data-section="educacion"><a href="#">▸ Educación</a></li>
+                <li data-section="idiomas"><a href="#">▸ Idiomas</a></li>
+                <li data-section="redes"><a href="#">▸ Redes Sociales</a></li>
+                <li style="margin-top: 2rem;" data-section="configuracion"><a href="#">▸ CONFIGURACIÓN</a></li>
+            </ul>
+            <div class="sidebar-status">
+                <p>ESTADO SISTEMA: <span class="highlight">ONLINE</span></p>
+                <p>PLAN ACTIVO: <span class="highlight">PRO_BETA</span></p>
+                <p style="margin-top: 1rem; font-size: 0.75rem; color: var(--border-color);">v1.0.4 - Bld 892</p>
+            </div>
+        </aside>
+
+        <main class="dashboard-content">
+            <div class="dashboard-header">
+                <h2>PANEL DE CONTROL // MI CV ACTUAL</h2>
+                <div class="dashboard-actions">
+                    <button class="btn-secondary" id="generate-cv-btn">GENERAR NUEVO CV</button>
+                    <button class="btn-primary" id="download-pdf-btn">DESCARGAR PDF</button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Tarjeta de Score ATS -->
+                <div class="card score-card">
+                    <div class="card-header">▸ MÉTRICAS ATS</div>
+                    <div class="score-display">
+                        <div class="score-circle">92%</div>
+                        <div class="score-details">
+                            <p>COMPATIBILIDAD: <span class="highlight">ALTA</span></p>
+                            <p>PALABRAS CLAVE: 24/28</p>
+                            <p>FORMATO DE LECTURA: ÓPTIMO</p>
+                        </div>
+                    </div>
+                    <p style="margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-secondary);">El currículum
+                        superará la mayoría de los filtros automatizados para el perfil seleccionado.</p>
+                </div>
+
+                <!-- Terminal del Dashboard -->
+                <div class="hero-terminal dashboard-terminal">
+                    <div class="terminal-header">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="terminal-title">system_log.txt</span>
+                    </div>
+                    <div class="terminal-body" style="height: auto;">
+                        <p class="sys-msg">&gt; ÚLTIMA ACTUALIZACIÓN: 14:15 HS</p>
+                        <p class="sys-msg">&gt; AGENTE_01: ESTRUCTURA REVISADA [OK]</p>
+                        <p class="sys-msg">&gt; AGENTE_02: EXPERIENCIA REESCRITA [OK]</p>
+                        <p class="sys-msg">&gt; AGENTE_03: MATCH DE KEYWORDS COMPLETADO [OK]</p>
+                        <p class="sys-msg">&gt; SISTEMA: CV LISTO PARA DESCARGA.</p>
+                        <p class="sys-msg highlight animate-pulse" style="margin-top: 1rem;">_</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historial -->
+            <div class="history-section">
+                <h3
+                    style="font-family: var(--font-heading); margin-bottom: 1rem; color: var(--accent); font-size: 1.5rem;">
+                    ▸ VERSIONES RECIENTES</h3>
+                <div class="history-list">
+                    <div class="history-item">
+                        <div class="history-info">
+                            <h4>CV_Software_Engineer_v2.pdf</h4>
+                            <span>Hace 2 días // Perfil: Backend Dev // Score ATS: 92%</span>
+                        </div>
+                        <button class="btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">VER</button>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-info">
+                            <h4>CV_Fullstack_React_v1.pdf</h4>
+                            <span>Hace 1 semana // Perfil: Frontend Dev // Score ATS: 88%</span>
+                        </div>
+                        <button class="btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">VER</button>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-info">
+                            <h4>CV_Original_Importado.pdf</h4>
+                            <span>Hace 2 semanas // Documento Base</span>
+                        </div>
+                        <button class="btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">VER</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
