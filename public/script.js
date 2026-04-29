@@ -640,24 +640,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const { personal, skills, soft_skills, experience, education, languages, social, training, references } = data;
 
+        // CV Template with restored visual style and improved page break handling
         const cvHtml = `
-            <div id="cv-template" style="background: white; color: #333; padding: 40px; font-family: 'Arial', sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-                <header style="border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; text-align: center;">
+            <div id="cv-template" style="background: white; color: #333; padding: 40px; font-family: 'Arial', sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; box-sizing: border-box;">
+                <style>
+                    .cv-section { margin-bottom: 30px; }
+                    .cv-item { margin-bottom: 20px; page-break-inside: avoid; break-inside: avoid; }
+                    .cv-header { border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; text-align: center; }
+                    .cv-container { display: flex; gap: 40px; }
+                    .cv-main { flex: 2; min-width: 0; }
+                    .cv-side { flex: 1; min-width: 0; }
+                    .cv-section-title { border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem; font-weight: bold; }
+                    .cv-tag { background: #f0f0f0; padding: 3px 8px; border-radius: 3px; font-size: 0.85rem; display: inline-block; margin: 2px; }
+                    ul { padding-left: 20px; margin: 0; }
+                </style>
+
+                <header class="cv-header">
                     <h1 style="margin: 0; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;">${escapeHTML(personal.full_name) || 'TU NOMBRE'}</h1>
                     <p style="margin: 5px 0; font-size: 1rem; color: #666;">
                         ${escapeHTML(personal.email) || ''} | ${escapeHTML(personal.phone) || ''} | ${escapeHTML(personal.location) || ''}
                     </p>
-                    <div style="margin-top: 10px;">
-                        ${social.map(s => `<a href="${escapeHTML(s.url)}" style="color: #333; text-decoration: none; margin: 0 10px; font-size: 0.9rem;">${escapeHTML(s.platform)} ${escapeHTML(s.url)}</a>`).join(' | ')}
+                    <div style="margin-top: 10px; font-size: 0.9rem;">
+                        ${social.map(s => `<span>${escapeHTML(s.platform)} ${escapeHTML(s.url)}</span>`).join(' | ')}
                     </div>
                 </header>
 
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px;">
-                    <div class="main-col">
-                        <section style="margin-bottom: 30px;">
-                            <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Experiencia Laboral</h3>
+                <div class="cv-container">
+                    <div class="cv-main">
+                        <section class="cv-section">
+                            <h3 class="cv-section-title">Experiencia Laboral</h3>
                             ${experience.map(exp => `
-                                <div style="margin-bottom: 20px;">
+                                <div class="cv-item">
                                     <div style="display: flex; justify-content: space-between; font-weight: bold;">
                                         <span>${escapeHTML(exp.position)}</span>
                                         <span>${escapeHTML(exp.duration)}</span>
@@ -668,10 +681,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             `).join('')}
                         </section>
 
-                        <section style="margin-bottom: 30px;">
-                            <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Educación</h3>
+                        <section class="cv-section">
+                            <h3 class="cv-section-title">Educación</h3>
                             ${education.map(edu => `
-                                <div style="margin-bottom: 15px;">
+                                <div class="cv-item">
                                     <div style="display: flex; justify-content: space-between; font-weight: bold;">
                                         <span>${escapeHTML(edu.degree)}</span>
                                         <span>${escapeHTML(edu.duration)}</span>
@@ -681,10 +694,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             `).join('')}
                         </section>
 
-                        <section style="margin-bottom: 30px;">
-                            <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Capacitaciones y Cursos</h3>
+                        <section class="cv-section">
+                            <h3 class="cv-section-title">Capacitaciones y Cursos</h3>
                             ${training && training.length > 0 ? training.map(t => `
-                                <div style="margin-bottom: 15px;">
+                                <div class="cv-item">
                                     <div style="display: flex; justify-content: space-between; font-weight: bold;">
                                         <span>${escapeHTML(t.course_name)}</span>
                                         <span>${escapeHTML(t.duration)}</span>
@@ -696,34 +709,34 @@ document.addEventListener("DOMContentLoaded", () => {
                         </section>
                     </div>
 
-                    <div class="side-col">
-                        <section style="margin-bottom: 30px;">
-                            <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Habilidades Técnicas</h3>
+                    <div class="cv-side">
+                        <section class="cv-section">
+                            <h3 class="cv-section-title">Habilidades Técnicas</h3>
                             <div style="display: flex; flex-wrap: wrap; gap: 5px;">
-                                ${skills.map(s => `<span style="background: #f0f0f0; padding: 3px 8px; border-radius: 3px; font-size: 0.85rem;">${escapeHTML(s.skill_name)}</span>`).join('')}
+                                ${skills.map(s => `<span class="cv-tag">${escapeHTML(s.skill_name)}</span>`).join('')}
                             </div>
                         </section>
 
-                        <section style="margin-bottom: 30px;">
-                            <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Habilidades Blandas</h3>
-                            <ul style="padding-left: 20px; margin: 0; font-size: 0.9rem;">
+                        <section class="cv-section">
+                            <h3 class="cv-section-title">Habilidades Blandas</h3>
+                            <ul style="font-size: 0.9rem;">
                                 ${soft_skills.map(s => `<li>${escapeHTML(s.skill_name)}</li>`).join('')}
                             </ul>
                         </section>
 
-                        <section style="margin-bottom: 30px;">
-                            <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Idiomas</h3>
+                        <section class="cv-section">
+                            <h3 class="cv-section-title">Idiomas</h3>
                             ${languages.map(l => `
-                                <div style="font-size: 0.9rem; margin-bottom: 5px;">
+                                <div class="cv-item" style="font-size: 0.9rem; margin-bottom: 5px;">
                                     <strong>${escapeHTML(l.language_name)}:</strong> ${escapeHTML(l.level)}
                                 </div>
                             `).join('')}
                         </section>
 
-                        <section style="margin-bottom: 30px;">
-                            <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 1.2rem;">Referencias</h3>
+                        <section class="cv-section">
+                            <h3 class="cv-section-title">Referencias</h3>
                             ${references && references.length > 0 ? references.map(r => `
-                                <div style="font-size: 0.85rem; margin-bottom: 10px; line-height: 1.2;">
+                                <div class="cv-item" style="font-size: 0.85rem; margin-bottom: 10px; line-height: 1.2;">
                                     <div style="font-weight: bold;">${escapeHTML(r.ref_name)}</div>
                                     <div style="color: #666;">${escapeHTML(r.relationship)}</div>
                                     <div>Tel: ${escapeHTML(r.phone)}</div>
@@ -746,7 +759,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <button class="btn-primary" id="download-pdf-now">DESCARGAR PDF</button>
                 </div>
             </div>
-            <div class="cv-preview-container" style="background: var(--bg-secondary); padding: 20px; border-radius: 8px; margin-top: 20px; overflow-y: auto; max-height: 80vh;">
+            <div class="cv-preview-container" style="background: var(--bg-secondary); padding: 20px; border-radius: 8px; margin-top: 20px; overflow-y: auto; max-height: 80vh; display: flex; justify-content: center;">
                 ${cvHtml}
             </div>
         `;
@@ -768,11 +781,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const opt = {
-            margin: 0,
+            margin: 10,
             filename: 'Mi_Curriculum.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
         // New Promise-based usage:
