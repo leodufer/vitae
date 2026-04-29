@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: vitae_db
-      MYSQL_ROOT_PASSWORD: root_password_change_me
+      MYSQL_ROOT_PASSWORD: root
     ports:
       - "3306:3306"
     volumes:
@@ -23,9 +23,9 @@ services:
       - PORT=3000
       - DB_HOST=db
       - DB_USER=root
-      - DB_PASSWORD=root_password_change_me
+      - DB_PASSWORD=root
       - DB_NAME=vitae_db
-      - JWT_SECRET=your_jwt_secret_here_change_me
+      - JWT_SECRET=VV/T/n1zCSOUqPBtBbI4+Ub/NYnHvA8FP9WPSM8QKF4=
     depends_on:
       - db
 
