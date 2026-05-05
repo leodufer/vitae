@@ -82,3 +82,7 @@ docker-compose exec db mysqldump -u root -p'tu_password' vitae_db > backup.sql
 
 > [!IMPORTANT]
 > El archivo `schema.sql` se carga automáticamente la **primera vez** que se crea el volumen de la base de datos. Si realizas cambios en el esquema posteriormente, deberás aplicarlos manualmente o borrar el volumen con `docker-compose down -v` (precaución: esto borra los datos).
+
+sqp_98968a4f9c4186c24ff70e5ec5842186bcf8c435
+
+sonar -Dsonar.host.url=http://ubuntu-lab.netbird.cloud:9000 -Dsonar.token=sqp_98968a4f9c4186c24ff70e5ec5842186bcf8c435 -Dsonar.projectKey=Vitae

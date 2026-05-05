@@ -1,0 +1,6 @@
+projectKey=Vitae
+serverUrl=http://ubuntu-lab.netbird.cloud:9000
+serverVersion=26.4.0.121862
+dashboardUrl=http://ubuntu-lab.netbird.cloud:9000/dashboard?id=Vitae
+ceTaskId=adaf7ee1-9389-4835-be37-1ca949e7966e
+ceTaskUrl=http://ubuntu-lab.netbird.cloud:9000/api/ce/task?id=adaf7ee1-9389-4835-be37-1ca949e7966e
