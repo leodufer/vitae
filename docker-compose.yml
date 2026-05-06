@@ -16,6 +16,8 @@ services:
 
   app:
     build: .
+    image: vitae:v1
+    platform: linux/amd64
     restart: always
     ports:
       - "3000:3000"
