@@ -86,4 +86,106 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // Forgot Password Form Logic
+    const forgotForm = document.getElementById("forgot-form");
+    const forgotMessage = document.getElementById("forgot-message");
+
+    if (forgotForm) {
+        forgotForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("forgot-email").value;
+
+            try {
+                const response = await fetch('/api/forgot-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    forgotMessage.style.color = '#4CAF50';
+                    if (data._dev_link) {
+                        forgotMessage.innerHTML = `> SOLICITUD ENVIADA.<br>Enlace de desarrollo generado:<br><a href="${data._dev_link}" style="color: var(--accent); text-decoration: underline; word-break: break-all;">Haga clic aquí para restablecer</a>`;
+                    } else {
+                        forgotMessage.textContent = '> ' + data.message;
+                    }
+                } else {
+                    forgotMessage.style.color = '#f44336';
+                    forgotMessage.textContent = '> ERROR: ' + (data.error || 'No se pudo procesar la solicitud');
+                }
+            } catch (err) {
+                console.error(err);
+                forgotMessage.style.color = '#f44336';
+                forgotMessage.textContent = '> ERROR: Fallo de conexión';
+            }
+        });
+    }
+
+    // Reset Password Form Logic
+    const resetForm = document.getElementById("reset-form");
+    const resetMessage = document.getElementById("reset-message");
+
+    if (resetForm) {
+        resetForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const token = document.getElementById("reset-token").value;
+            const password = document.getElementById("reset-password").value;
+
+            try {
+                const response = await fetch('/api/reset-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resetMessage.style.color = '#4CAF50';
+                    resetMessage.textContent = '> ' + data.message + ' Redirigiendo a Login...';
+                    
+                    // Limpiar el parámetro de la URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+
+                    setTimeout(() => {
+                        resetMessage.textContent = '';
+                        document.getElementById("reset-password").value = '';
+                        // Cambiar al login box
+                        if (typeof toggleAuth === 'function') {
+                            toggleAuth(null, 'login');
+                        }
+                    }, 2000);
+                } else {
+                    resetMessage.style.color = '#f44336';
+                    resetMessage.textContent = '> ERROR: ' + (data.error || 'No se pudo restablecer la contraseña');
+                }
+            } catch (err) {
+                console.error(err);
+                resetMessage.style.color = '#f44336';
+                resetMessage.textContent = '> ERROR: Fallo de conexión';
+            }
+        });
+    }
+
+    // Detect reset token in URL on page load
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) {
+        // Guardar el token en el input oculto
+        const tokenInput = document.getElementById("reset-token");
+        if (tokenInput) {
+            tokenInput.value = token;
+        }
+        // Mostrar el formulario de reset y ocultar los demás
+        if (typeof toggleAuth === 'function') {
+            toggleAuth(null, 'reset');
+        }
+    }
 });

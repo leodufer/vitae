@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 require('dotenv').config();
 const pool = require('./db');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +39,8 @@ const apiLimiter = rateLimit({
 app.use('/api/', apiLimiter);
 app.use('/api/login', authLimiter);
 app.use('/api/register', authLimiter);
+app.use('/api/forgot-password', authLimiter);
+app.use('/api/reset-password', authLimiter);
 
 // Ruta principal (por defecto cargará index.html de /public)
 app.get('/', (req, res) => {
@@ -419,9 +422,120 @@ app.post('/api/login', [
     }
 });
 
-// Iniciar el servidor
-app.listen(PORT, () => {
-    console.log(`=========================================`);
-    console.log(`🚀 Servidor ejecutándose en: http://localhost:${PORT}`);
-    console.log(`=========================================`);
+app.post('/api/forgot-password', [
+    body('email').isEmail().normalizeEmail()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ error: 'Formato de email inválido.' });
+    }
+
+    try {
+        const { email } = req.body;
+
+        // Verificar si el usuario existe
+        const [users] = await pool.query('SELECT id, name FROM users WHERE email = ?', [email]);
+        
+        // Mensaje genérico para evitar la enumeración de usuarios por seguridad
+        const successMessage = 'Si el correo ingresado coincide con un usuario registrado, recibirás un enlace de recuperación.';
+        
+        if (users.length === 0) {
+            return res.json({ message: successMessage });
+        }
+
+        const user = users[0];
+        // Generar un token único y seguro
+        const token = crypto.randomBytes(20).toString('hex');
+        
+        // Definir expiración en 1 hora
+        const expires = new Date(Date.now() + 3600000); // 1 hora de validez
+
+        // Actualizar la base de datos con el token y su expiración
+        await pool.query('UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?', [token, expires, user.id]);
+
+        // Simular el envío del correo electrónico imprimiendo el enlace en la consola
+        const resetLink = `http://localhost:${PORT}/auth.html?token=${token}`;
+        console.log(`\n=========================================`);
+        console.log(`✉️ SIMULACIÓN DE CORREO DE RECUPERACIÓN`);
+        console.log(`Para: ${email}`);
+        console.log(`Asunto: Recuperación de contraseña`);
+        console.log(`Enlace: ${resetLink}`);
+        console.log(`=========================================\n`);
+
+        res.json({ 
+            message: successMessage,
+            _dev_link: resetLink // Expuesto para facilitar las pruebas locales desde el frontend
+        });
+    } catch (error) {
+        console.error('Error en forgot-password:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
 });
+
+app.post('/api/reset-password', [
+    body('token').notEmpty().trim(),
+    body('password').isLength({ min: 6 })
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres y el token debe ser válido.' });
+    }
+
+    try {
+        const { token, password } = req.body;
+
+        // Buscar usuario con token válido y que no haya expirado
+        const [users] = await pool.query(
+            'SELECT id FROM users WHERE reset_token = ? AND reset_token_expires > NOW()',
+            [token]
+        );
+
+        if (users.length === 0) {
+            return res.status(400).json({ error: 'El token de recuperación es inválido o ha expirado.' });
+        }
+
+        const user = users[0];
+
+        // Hashear la nueva contraseña
+        const hashedPassword = await bcrypt.hash(password, 12);
+
+        // Actualizar contraseña y limpiar columnas del token
+        await pool.query(
+            'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?',
+            [hashedPassword, user.id]
+        );
+
+        res.json({ message: 'Contraseña restablecida exitosamente.' });
+    } catch (error) {
+        console.error('Error en reset-password:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+});
+
+// Función para migrar la base de datos si es necesario (agregar columnas de recuperación)
+async function migrateDatabase() {
+    try {
+        const [columns] = await pool.query("SHOW COLUMNS FROM users LIKE 'reset_token'");
+        if (columns.length === 0) {
+            console.log("> [DB MIGRATION] Agregando columnas 'reset_token' y 'reset_token_expires' a la tabla 'users'...");
+            await pool.query("ALTER TABLE users ADD COLUMN reset_token VARCHAR(255) NULL, ADD COLUMN reset_token_expires TIMESTAMP NULL");
+            console.log("> [DB MIGRATION] Base de datos migrada correctamente.");
+        } else {
+            console.log("> [DB MIGRATION] Las columnas de recuperación de contraseña ya existen.");
+        }
+    } catch (error) {
+        console.error("> [DB MIGRATION] Error al intentar migrar la base de datos:", error);
+    }
+}
+
+// Iniciar el servidor
+async function startServer() {
+    await migrateDatabase();
+    app.listen(PORT, () => {
+        console.log(`=========================================`);
+        console.log(`🚀 Servidor ejecutándose en: http://localhost:${PORT}`);
+        console.log(`=========================================`);
+    });
+}
+
+startServer();

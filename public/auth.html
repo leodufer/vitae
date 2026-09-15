@@ -53,6 +53,8 @@
             
             <div class="auth-switch">
                 ¿No tienes acceso? <a href="#" onclick="toggleAuth(event, 'register')">SOLICITAR CREDENCIALES</a>
+                <br>
+                ¿Olvidaste tu contraseña? <a href="#" onclick="toggleAuth(event, 'forgot')">RECUPERAR ACCESO</a>
             </div>
         </div>
 
@@ -91,19 +93,87 @@
                 ¿Ya tienes credenciales? <a href="#" onclick="toggleAuth(event, 'login')">INICIAR SESIÓN</a>
             </div>
         </div>
+
+        <!-- Forgot Password Form -->
+        <div class="auth-box hidden" id="forgot-box">
+            <div class="terminal-header" style="position: absolute; top: 0; left: 0; width: 100%;">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="terminal-title">password_recovery.exe</span>
+            </div>
+            
+            <div class="auth-header" style="margin-top: 2rem;">
+                <h2>&gt; RECUPERAR ACCESO</h2>
+                <p>Ingresa tu correo para recibir un enlace de recuperación.</p>
+            </div>
+            
+            <form id="forgot-form" action="#" method="POST" onsubmit="event.preventDefault();">
+                <div id="forgot-message" style="margin-bottom: 15px; color: var(--accent); font-family: 'VT323', monospace; font-size: 1.2rem; line-height: 1.2;"></div>
+                <div class="form-group">
+                    <label for="forgot-email">&gt; EMAIL_</label>
+                    <input type="email" id="forgot-email" placeholder="usuario@dominio.com" required>
+                </div>
+                <button type="submit" class="btn-primary auth-btn">ENVIAR ENLACE ▸</button>
+            </form>
+            
+            <div class="auth-switch">
+                ¿Ya tienes credenciales? <a href="#" onclick="toggleAuth(event, 'login')">INICIAR SESIÓN</a>
+            </div>
+        </div>
+
+        <!-- Reset Password Form -->
+        <div class="auth-box hidden" id="reset-box">
+            <div class="terminal-header" style="position: absolute; top: 0; left: 0; width: 100%;">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="terminal-title">password_reset.exe</span>
+            </div>
+            
+            <div class="auth-header" style="margin-top: 2rem;">
+                <h2>&gt; REGENERAR PASSWORD</h2>
+                <p>Establece tus nuevas credenciales de acceso.</p>
+            </div>
+            
+            <form id="reset-form" action="#" method="POST" onsubmit="event.preventDefault();">
+                <input type="hidden" id="reset-token">
+                <div id="reset-message" style="margin-bottom: 15px; color: var(--accent); font-family: 'VT323', monospace; font-size: 1.2rem; line-height: 1.2;"></div>
+                <div class="form-group">
+                    <label for="reset-password">&gt; NUEVA PASSWORD_</label>
+                    <input type="password" id="reset-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary auth-btn">REESTABLECER CONTRASEÑA ▸</button>
+            </form>
+            
+            <div class="auth-switch">
+                ¿Recordaste tu acceso? <a href="#" onclick="toggleAuth(event, 'login')">INICIAR SESIÓN</a>
+            </div>
+        </div>
     </main>
 
     <script>
         function toggleAuth(event, target) {
-            event.preventDefault();
+            if (event) event.preventDefault();
             const loginBox = document.getElementById('login-box');
             const registerBox = document.getElementById('register-box');
+            const forgotBox = document.getElementById('forgot-box');
+            const resetBox = document.getElementById('reset-box');
             
+            // Ocultar todos
+            loginBox.classList.add('hidden');
+            registerBox.classList.add('hidden');
+            if (forgotBox) forgotBox.classList.add('hidden');
+            if (resetBox) resetBox.classList.add('hidden');
+            
+            // Mostrar target
             if (target === 'register') {
-                loginBox.classList.add('hidden');
                 registerBox.classList.remove('hidden');
+            } else if (target === 'forgot') {
+                forgotBox.classList.remove('hidden');
+            } else if (target === 'reset') {
+                resetBox.classList.remove('hidden');
             } else {
-                registerBox.classList.add('hidden');
                 loginBox.classList.remove('hidden');
             }
         }
