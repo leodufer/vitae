@@ -264,7 +264,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span>PERFIL PÚBLICO</span>
                     <input type="checkbox">
                 </div>
-                <button class="btn-secondary" style="margin-top: 1rem; color: #f44336; border-color: #f44336;">ELIMINAR CUENTA</button>
             </div>
         </div>
     `;
